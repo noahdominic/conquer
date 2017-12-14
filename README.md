@@ -7,3 +7,6 @@ Version Log:
 * Controllable character
 * Coin appears in a pseudorandom fashion
 * Coin can be collected
+
+<strong> 1.1 </strong> (Uploaded on 2017-12-15 04:20 (eyyyyyyy))
+* Implementation of Score Board
