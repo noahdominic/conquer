@@ -49,17 +49,10 @@ MAIN 	ENDP
 ;=======================================================================;
 ;====================GAME SCREEN========================================;
 GAME 	PROC NEAR
-		CALL	DRAW_FIELD	;draw the playing field and the hud on the right
-		
-		MOV 	AH, 02H   ;function code to request for set cursor
-		MOV 	BH, 00    ;page number 0, i.e. current screen
-		MOV 	DH, 3H    ;set row
-		MOV 	DL, 3H    ;set column
-		INT 	10H
 		
 ANIMATION:	
-		
-		CALL	CLEAN_BOARD
+
+		CALL	DRAW_FIELD
 		
 		CALL	_GET_KEY
 		
@@ -154,7 +147,7 @@ DRAW_FIELD PROC NEAR
 		;CMP: Fill (0, 0) to (24, 79) wtih a black backgrond and black text
 		;ENG: Cleans up any residual texts
 		MOV 	AX, 0600H   ;full screen
-		MOV 	BH, 020H     ;black bg (0), black fg (0)
+		MOV 	BH, 00H     ;black bg (0), black fg (0)
 		MOV 	CX, 0000H   ;upper left row:column (00, 00)
 		MOV 	DX, 184FH   ;lower right row:column (24:79)
 		INT 	10H
@@ -171,13 +164,40 @@ DRAW_FIELD PROC NEAR
 		
 		;ENG: print label for score
 		MOV 	AH, 02H   ;function code to request for set cursor
-		MOV 	BH, 00    ;page number 0, i.e. current screen
+		MOV 	BH, 00     ;page number 0, i.e. current screen
 		MOV 	DH, 04H    ;set row
 		MOV 	DL, 3EH    ;set column
 		INT 	10H
 		; printf(hintmsg);
 		LEA 	DX, HUDLBLS
 		CALL 	PRINTF
+		
+		
+		;ENG: print label for score
+		MOV 	AH, 02H    ;function code to request for set cursor
+		MOV 	BH, 00     ;page number 0, i.e. current screen
+		MOV 	DH, 06H    ;set row
+		MOV 	DL, 3EH    ;set column
+		INT 	10H
+		
+		push ax
+		push bx
+		push cx
+		push dx
+		
+		mov dh, 00
+		mov	dl, HEROSCORE
+		add dl, 1
+		mov al, dl
+		aam
+		add ax, 3030h
+		push ax
+		mov dl, ah
+		mov ah, 02h
+		int 21h	
+		pop dx
+		mov ah, 02h
+		int 21h
 		
 		;CMP: Fill (03, 61) to (08, 76) wtih a black backgrond and black text
 		;ENG: Draws background for hp
@@ -340,6 +360,9 @@ CHECKCOIN PROC NEAR
 		JNE __LEAVETHIS2
 		CMP AH, BH
 		JNE __LEAVETHIS2
+		
+		ADD HEROSCORE, 1
+		
 		ADD X, 3
 		MOV DX, 0
 		MOV AH, 0
